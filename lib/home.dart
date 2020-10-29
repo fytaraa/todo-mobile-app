@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test1/src/widgets/task_card.dart';
+import 'package:flutter_test1/src/screens//online_task.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,70 +18,96 @@ class _HomeState extends State<Home> {
   int totalTask;
   SharedPreferences prefs;
 
+  bool checkboxValue = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("To-Do List"),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _addDialog();
-        },
-        child: Icon(Icons.add),
-      ),
-      body: Container(
-          child: keysList.length != 0 && keysList != null
-              ? ListView.builder(
-                  itemBuilder: (context, index) {
-                    return Card(
-                      color: Colors.white,
-                      elevation: 3,
-                      child: Padding(
-                        padding: const EdgeInsets.all(13.0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Icon(
-                              Icons.check_box_outline_blank,
-                              color: Colors.grey,
-                            ),
-                            SizedBox(
-                              width: 20.0,
-                            ),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(keysList[index], style: TextStyle(fontSize: 16.0)),
-                                SizedBox(
-                                  height: 5.0,
-                                ),
-                                Text(prefs.getString(keysList[index]), style: TextStyle(fontSize: 12.0))
-                              ],
-                            ),
-                            IconButton(icon: Icon(Icons.delete_forever),color: Colors.red,onPressed: (){
-                              prefs.remove(keysList[index]);
-                              Toast.show("The note is deleted", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
-                              keysList.clear();
-                              keysList = prefs.getKeys().toList();
-                              totalTask = keysList.length;
-                              setState(() {
-
-                              });
-                            },)
-                          ],
+        appBar: AppBar(
+          title: Text("To-Do List"),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            _addDialog();
+          },
+          child: Icon(Icons.add),
+        ),
+        body: Column(
+          children: [
+            Text("There is $totalTask notes"),
+            FlatButton(
+              color: Colors.blue,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => OnlineTask()),
+                );
+              },
+              child: Text("online Tasks"),
+            ),
+            keysList.length != 0 && keysList != null
+                ? ListView.builder(
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return Card(
+                        color: Colors.white,
+                        elevation: 3,
+                        child: Padding(
+                          padding: const EdgeInsets.all(13.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Checkbox(
+                                value: checkboxValue,
+                                onChanged: (value) {
+                                  setState(() {
+                                    checkboxValue = value;
+                                  });
+                                },
+                              ),
+                              SizedBox(
+                                width: 20.0,
+                              ),
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(keysList[index],
+                                      style: TextStyle(fontSize: 16.0)),
+                                  SizedBox(
+                                    height: 5.0,
+                                  ),
+                                  Text(prefs.getString(keysList[index]),
+                                      style: TextStyle(fontSize: 12.0))
+                                ],
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete_forever),
+                                color: Colors.red,
+                                onPressed: () {
+                                  prefs.remove(keysList[index]);
+                                  Toast.show("The note is deleted", context,
+                                      duration: Toast.LENGTH_SHORT,
+                                      gravity: Toast.BOTTOM);
+                                  keysList.clear();
+                                  keysList = prefs.getKeys().toList();
+                                  totalTask = keysList.length;
+                                  setState(() {});
+                                },
+                              )
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  itemCount: totalTask,
-                )
-              : Center(
-                  child: CircularProgressIndicator(),
-                )),
-    );
+                      );
+                    },
+                    itemCount: totalTask,
+                  )
+                : Center(
+                    child: Text('there is no notes'),
+                  ),
+          ],
+        ));
   }
 
   @override
@@ -174,7 +200,8 @@ class _HomeState extends State<Home> {
             onPressed: () {
               saveData(_titleController.text, _descriptionController.text);
               Navigator.of(context).pop();
-              Toast.show("The note is deleted", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+              Toast.show("The note is deleted", context,
+                  duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
             },
             child: Text(
               "Add",
@@ -189,9 +216,7 @@ class _HomeState extends State<Home> {
     keysList.clear();
     keysList = prefs.getKeys().toList();
     totalTask = keysList.length;
-    setState(() {
-
-    });
+    setState(() {});
     print("Data is loaded ${prefs.getString(title)}");
   }
 
